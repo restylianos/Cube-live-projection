@@ -1,7 +1,5 @@
 #include <GL/glut.h>
 #include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
 
 float theta = 30.0;
 float width = 200.0;
