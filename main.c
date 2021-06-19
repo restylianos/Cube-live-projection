@@ -1,18 +1,11 @@
-
-#ifdef __APPLE__
-#include <GLUT/glut.h>
-#else
 #include <GL/glut.h>
-#endif
 #include <stdio.h>
-
-int KEYS_NORMAL[256];
-int KEYS_SPECIAL[256];
-
+#include <unistd.h>
+#include <fcntl.h>
 
 float theta = 30.0;
-float Width = 200.0;
-float Height = 200.0;
+float width = 200.0;
+float height = 200.0;
 float n = 4.0;
 float f = 20.0;
 
@@ -20,15 +13,37 @@ float X_AXIS = 0.0;
 float Y_AXIS = 0.0;
 float Z_AXIS = 0.0;
 
-int DIRECTION = 1;
+void displayCube();
+void changeSize(float width,float height);
+void InitGL();
+void keyPressed(unsigned char key, int x, int y);
 
-void check_special_keys(int key, int x, int y) {
-     KEYS_SPECIAL[key] = 1; //true
-}
-void check_special_keys_up(int key, int x, int y) { 
-    KEYS_SPECIAL[key] = 0;  //false
-}
+int main(int argc, char **argv) {
 
+    if(argc > 1 && argc < 7){
+        theta = strtol(argv[1],NULL,10);
+        width = strtol(argv[2],NULL,10);
+        height = strtol(argv[3],NULL,10);
+        n = strtol(argv[4],NULL,10);
+        f = strtol(argv[5],NULL,10);
+    }
+    else{
+        printf( "\033[31;1m[-]Default mode!\nUsing default values [30,200,200,4,30]\nUsage for custom inputs: ./<output_filename> [Theta] [Width] [Height] [n] [f]\033[0m\n");
+    }
+    
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+	glutInitWindowSize(640, 480);
+	glutInitWindowPosition(200, 200);
+	glutCreateWindow("Cube live projection");
+    glMatrixMode(GL_PROJECTION);
+    glutDisplayFunc(displayCube);
+    glutIdleFunc(displayCube);
+	InitGL();
+    glutKeyboardFunc(keyPressed);
+	glutMainLoop();
+    return 0;
+}
 
 void displayCube(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -90,18 +105,18 @@ void displayCube(){
     return;
 }
 
-void changeSize(float Width,float Height){
+void changeSize(float width,float height){
     glMatrixMode(GL_PROJECTION);
 
     glLoadIdentity();
 
-    glViewport(0, 0, Width, Height);
+    glViewport(0, 0, width, height);
 
-    gluPerspective((float)theta, (float) Width / (float) Height, (float) n, (float) f);
+    gluPerspective((float)theta, (float) width / (float) height, (float) n, (float) f);
 
     glMatrixMode(GL_MODELVIEW);
     
-    printf("Theta %f, Width: %f, Height: %f, n: %f, f: %f",theta,Width,Height,n,f);
+    printf("Theta %f, Width: %f, Height: %f, n: %f, f: %f",theta,width,height,n,f);
     return;
 }
 
@@ -113,87 +128,41 @@ void InitGL(){
     glShadeModel(GL_SMOOTH);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective((float)theta, (float)Width / (float)Height, (float)n, (float)f);
+    gluPerspective((float)theta, (float)width / (float)height, (float)n, (float)f);
     glMatrixMode(GL_MODELVIEW);
     return;
 }
 
-    
-void keyPressed(){
-    // LEFT - RIGHT KEYS CONTROL THE THETA VALUE
-    // UP - DONW KEYS CONTROL THE F VALUE
-    // w- s KEYS CONTROL THE N VALUE
-    // a - d CONTROL THE WIDTH WHICH RESULTS TO CHANGE OF THE ASPECT RATIO
-    
-    Width = glutGet(GLUT_WINDOW_WIDTH);
-     if(KEYS_SPECIAL[GLUT_KEY_LEFT] == 1){
-         theta = (float)(theta + 5.0);
-     }
-        
+void keyPressed(unsigned char key, int x, int y){
+    // a - d change theta value
+    // w - s change f value
+    // b - n change n value
+    // c - v CONTROL THE WIDTH -> ASPECT RATIO
+    width = glutGet(GLUT_WINDOW_WIDTH);
 
-    if(KEYS_SPECIAL[GLUT_KEY_RIGHT] == 1){
-        theta = (float)(theta - 5.0);
-    }
-        
-    if(KEYS_SPECIAL[GLUT_KEY_DOWN] == 1){
+    if(key == 'w'){
         f = (float)(f + 2.0);
     }
-
-    if(KEYS_SPECIAL[GLUT_KEY_UP] == 1){
+    else if(key == 's'){
         f = (float)(f - 2.0);
     }
-
-    if(KEYS_NORMAL['w'] == 1){
+    else if(key == 'a'){
+        theta = (float)(theta + 5.0);
+    }
+    else if(key == 'd'){
+        theta = (float)(theta - 5.0);
+    }
+    else if(key == 'b'){
         n = (float)(n - 0.05);
     }
-
-    if(KEYS_NORMAL['s'] == 1){
+    else if(key == 'n'){
         n = (float)(n + 0.05);
     }
-
-    if(KEYS_NORMAL['a'] == 1)
-        Width = Width + 20.0;
-
-    if(KEYS_NORMAL['d'] == 1){
-        Width = 400;
-        changeSize(Width, glutGet(GLUT_WINDOW_HEIGHT));
+    else if(key == 'c'){
+        width = width + 20.0;
     }
-
+    else if(key == 'v'){
+        width = 400;
+        changeSize(width, glutGet(GLUT_WINDOW_HEIGHT));
+    }
 }
-    
-
-int main(int argc, char **argv) {
-
-    if(argc > 1 && argc < 7){
-        theta = strtol(argv[1],NULL,10);
-        Width = strtol(argv[2],NULL,10);
-        Height = strtol(argv[3],NULL,10);
-        n = strtol(argv[4],NULL,10);
-        f = strtol(argv[5],NULL,10);
-    }
-    else{
-        printf( "\033[31;1m[-]Default mode!\nUsing default values [30,200,200,4,30]\nUsage for custom inputs: ./<output_filename> [Theta] [Width] [Height] [n] [f]\033[0m\n");
-    }
-    
-
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize(640, 480);
-	glutInitWindowPosition(200, 200);
-	glutCreateWindow("Cube live projection");
-    glMatrixMode(GL_PROJECTION);
-    glutDisplayFunc(displayCube);
-    glutIdleFunc(displayCube);
-	InitGL();
-    
-    glutKeyboardFunc(keyPressed);
-	glutKeyboardUpFunc(keyPressed);
-    glutSpecialFunc(check_special_keys);
-	// glutSpecialUpFunc(check_special_keys_up);
-
-	glutMainLoop();
-    return 0;
-}
-
-
-    
