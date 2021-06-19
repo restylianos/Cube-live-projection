@@ -163,4 +163,5 @@ void keyPressed(unsigned char key, int x, int y){
         width = 400;
         changeSize(width, glutGet(GLUT_WINDOW_HEIGHT));
     }
+    InitGL();
 }
