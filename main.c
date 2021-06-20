@@ -18,7 +18,7 @@ void keyPressed(unsigned char key, int x, int y);
 
 int main(int argc, char **argv) {
 
-    if(argc > 1 && argc < 7){
+    if(argc == 6){
         theta = strtol(argv[1],NULL,10);
         width = strtol(argv[2],NULL,10);
         height = strtol(argv[3],NULL,10);
@@ -114,7 +114,6 @@ void changeSize(float width,float height){
 
     glMatrixMode(GL_MODELVIEW);
     
-    printf("Theta %f, Width: %f, Height: %f, n: %f, f: %f",theta,width,height,n,f);
     return;
 }
 
